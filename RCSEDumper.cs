@@ -15,14 +15,14 @@ namespace RCM_RCSEDumper{
     [BepInDependency(RCMManager.IDENTIFIER, BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(IDENTIFIER, "RCSE Dumper Plugin", "1.0.0.0")]
     internal class RCSEDumper : BaseUnityPlugin{
-        const string export_folder = "RCSEDumper\\";
+        const string export_folder = "RCM\\RCSEDumper\\";
         const string IDENTIFIER = "RCM.plugins.rscedumper";
         private void Awake(){
             new Harmony(IDENTIFIER).PatchAll();
             // create folder for dumping
             if (!Directory.Exists(export_folder)) Directory.CreateDirectory(export_folder);
 
-            RCMManager.ConnectMod("RCSE Dumper v1").ContinueWith(t => {
+            RCMManager.ConnectMod("RCSE Dumper").ContinueWith(t => {
                 RCMModUI mod = t.Result;
 
                 // begin mod UI construction here...
@@ -68,8 +68,7 @@ namespace RCM_RCSEDumper{
             foreach (var item in added_entities) EntityBalancingStore.EntityBalancingParametersList.Add(item);
             RCMManager.Log("RCSE Dumper: successfully unlocked all enemy units");
         }
-        private void ExportUnitsJson()
-        {
+        private void ExportUnitsJson(){
             if (!VerifyValid()) return;
 
             JsonSerializer serializer = new JsonSerializer();
@@ -97,12 +96,10 @@ namespace RCM_RCSEDumper{
                 }
                 sw.Write("\n}");
             }
-            //}
 
             RCMManager.Log("RCSE Dumper: successfully exported unit json's");
         }
-        private void ExportHacksJson()
-        {
+        private void ExportHacksJson(){
             if (!VerifyValid()) return;
 
 
@@ -127,8 +124,7 @@ namespace RCM_RCSEDumper{
             }
             RCMManager.Log("RCSE Dumper: successfully exported hack json's");
         }
-        private void ExportUgradesJson()
-        {
+        private void ExportUgradesJson(){
             if (!VerifyValid()) return;
 
             JsonSerializer serializer = new JsonSerializer();
@@ -136,8 +132,7 @@ namespace RCM_RCSEDumper{
             serializer.NullValueHandling = NullValueHandling.Ignore;
             serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             using (StreamWriter sw = new StreamWriter(export_folder + "upgrades.json"))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
+            using (JsonWriter writer = new JsonTextWriter(sw)){
 
                 writer.Formatting = Formatting.Indented;
                 int index = 0;
@@ -153,8 +148,7 @@ namespace RCM_RCSEDumper{
             }
             RCMManager.Log("RCSE Dumper: successfully exported upgrade json's");
         }
-        private void ExportIDLists()
-        {
+        private void ExportIDLists(){
             if (!VerifyValid()) return;
 
             // export entity names and descriptions
@@ -224,8 +218,12 @@ namespace RCM_RCSEDumper{
                 if (GameBalancingStore._gameBalancingScriptableObject.levelProgressionParametersFirstRun?.defaultWorlds != null)
                     foreach (var item in GameBalancingStore._gameBalancingScriptableObject.levelProgressionParametersFirstRun?.defaultWorlds) writer.Write(item.nameLocaId + "\t");
             }
-
-
+            // export all blueprint pool types
+            using (StreamWriter writer = new StreamWriter(export_folder + "blueprint_pools.txt")){
+                foreach (BlueprintPool blueprintPool in Resources.LoadAll<BlueprintPool>("BlueprintPools"))
+                    writer.Write(blueprintPool.poolId + "\t");
+            }
+        
             RCMManager.Log("RCSE Dumper: successfully dumped ID's");
         }
     }
