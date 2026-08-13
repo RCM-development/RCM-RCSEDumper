@@ -257,7 +257,7 @@ namespace RCM_RCSEDumper{
             List<string> has_skill_aiming = new List<string>();
             List<string> no_aiming = new List<string>();
             List<string> has_child_entities = new List<string>();
-            List<string> laser_turret = new List<string>();
+            //List<string> laser_turret = new List<string>();
             List<string> invalid_horizontal_pivot = new List<string>();
             List<string> compatible = new List<string>();
 
@@ -274,41 +274,41 @@ namespace RCM_RCSEDumper{
                     EntityController entityController = gameObject.GetComponent<EntityController>();
 
                     if (entityController == null) no_controller.Add(item.entityId);
-                    else if (entityController.skillAiming != null) has_skill_aiming.Add(item.entityId);
+                    //else if (entityController.skillAiming != null) has_skill_aiming.Add(item.entityId);
                     else if (entityController.aiming == null) no_aiming.Add(item.entityId);
                     else if (entityController.childEntityControllers.Count > 0) has_child_entities.Add(item.entityId);
                     else
                     {
 
                         // if using laser based weapon, drop it
-                        bool has_projectile = false;
-                        foreach (var e in entityController.events)
-                        {
-                            if (e.@event == EntityController.Event.OnReadyToShoot)
-                            {
-                                foreach (var a in e.actions)
-                                {
-                                    if (a.GetType() == typeof(ShootProjectile))
-                                    {
-                                        has_projectile = true;
-                                    }
-                                }
-                                foreach (var a in e.conditionalActions)
-                                {
-                                    foreach(var b in a.actions)
-                                    {
-                                        if (b.GetType() == typeof(ShootProjectile))
-                                        {
-                                            has_projectile = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (!has_projectile){
-                            laser_turret.Add(item.entityId);
-                            goto break_thingo;
-                        }
+                        //bool has_projectile = false;
+                        //foreach (var e in entityController.events)
+                        //{
+                        //    if (e.@event == EntityController.Event.OnReadyToShoot)
+                        //    {
+                        //        foreach (var a in e.actions)
+                        //        {
+                        //            if (a.GetType() == typeof(ShootProjectile))
+                        //            {
+                        //                has_projectile = true;
+                        //            }
+                        //        }
+                        //        foreach (var a in e.conditionalActions)
+                        //        {
+                        //            foreach(var b in a.actions)
+                        //            {
+                        //                if (b.GetType() == typeof(ShootProjectile))
+                        //                {
+                        //                    has_projectile = true;
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        //if (!has_projectile){
+                        //    laser_turret.Add(item.entityId);
+                        //    goto break_thingo;
+                        //}
 
                         // if using serial aiming, then we just check for more than 2 enties and its a definite yes
                         SingleTargetAction aiming = entityController.aiming;
@@ -403,17 +403,11 @@ namespace RCM_RCSEDumper{
                 foreach (string s in no_controller)
                     writer.WriteLine(s + ": no controller");
                 writer.WriteLine("====================================================================");
-                foreach (string s in has_skill_aiming)
-                    writer.WriteLine(s + ": has skill aiming");
-                writer.WriteLine("====================================================================");
                 foreach (string s in no_aiming)
                     writer.WriteLine(s + ": no aiming");
                 writer.WriteLine("====================================================================");
                 foreach (string s in has_child_entities)
                     writer.WriteLine(s + ": contains child entities");
-                writer.WriteLine("====================================================================");
-                foreach (string s in laser_turret)
-                    writer.WriteLine(s + ": likely uses a laser attack");
                 writer.WriteLine("====================================================================");
                 foreach (string s in invalid_horizontal_pivot)
                     writer.WriteLine(s + ": no horizontal pivot");
